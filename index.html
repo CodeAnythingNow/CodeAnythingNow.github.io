@@ -2,14 +2,15 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>shj</title>
+    <title>动态自我介绍 - 增强版</title>
     <style>
         :root {
             --primary: #2c3e50;
-            --secondary: #ff6b6b;
+            --accent: #ff6b6b;
+            --bg: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         }
  
-        /* 新增粒子背景 [3]() */
+        /* 粒子背景 [7]() */
         #particles {
             position: fixed;
             width: 100%;
@@ -17,164 +18,147 @@
             z-index: -1;
         }
  
+        body {
+            font-family: 'Segoe UI', system-ui;
+            margin: 0;
+            background: var(--bg);
+        }
+ 
+        /* 动态卡片容器 */
         .card {
-            /* 增强3D效果 */
-            transform: perspective(1000px) rotateY(0deg) scale(0.95);
-            transition: transform 0.5s cubic-bezier(0.4,0,0.2,1), 
-                        box-shadow 0.3s,
-                        background 0.3s;
-        }
- 
-        .card:hover {
-            transform: perspective(1000px) rotateY(5deg) scale(1);
             background: rgba(255,255,255,0.95);
-        }
- 
-        /* 新增对话气泡交互 [7]() */
-        .tooltip {
-            position: relative;
-            cursor: help;
-        }
-        .tooltip:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 120%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--primary);
-            color: white;
-            padding: 8px 15px;
             border-radius: 20px;
-            font-size: 0.9em;
-            white-space: nowrap;
-            animation: popIn 0.3s ease-out;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+            padding: 2.5rem;
+            margin: 2rem auto;
+            max-width: 800px;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
         }
  
-        /* 增强技能条动效 */
-        .skill-progress {
-            transition: width 1s cubic-bezier(0.68,-0.55,0.27,1.55);
+        .card.active  {
+            opacity: 1;
+            transform: translateY(0);
         }
  
-        /* 新增时间轴动画 [4]() */
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -25px;
-            top: 8px;
-            width: 15px;
-            height: 15px;
-            background: var(--secondary);
+        /* 3D头像效果 */
+        .avatar-container {
+            perspective: 1000px;
+            margin: -100px auto 30px;
+        }
+ 
+        .avatar {
+            width: 150px;
+            height: 150px;
             border-radius: 50%;
-            transform: scale(0);
-            transition: transform 0.5s;
-        }
-        .timeline-item.active::before  {
-            transform: scale(1);
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmY2YjZiIi8+PC9zdmc+') center/cover;
+            transform: rotateY(0deg);
+            transition: transform 0.8s;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
         }
  
-        @keyframes popIn {
-            0% { transform: translateX(-50%) scale(0); }
-            80% { transform: translateX(-50%) scale(1.1); }
-            100% { transform: translateX(-50%) scale(1); }
+        .avatar:hover {
+            transform: rotateY(180deg);
+        }
+ 
+        /* 动态进度条 */
+        .skill-bar {
+            height: 12px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+ 
+        .skill-progress {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--accent), #ff8e53);
+            transition: width 1s 0.3s, opacity 0.5s;
+        }
+ 
+        /* 时间轴动画 */
+        .timeline::before {
+            animation: lineGrow 1.2s 0.5s forwards;
+        }
+ 
+        @keyframes lineGrow {
+            to { transform: scaleY(1); }
+        }
+ 
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .card { margin: 1rem; padding: 1.5rem; }
+            .avatar { width: 120px; height: 120px; }
         }
     </style>
 </head>
 <body>
-    <!-- 新增粒子背景 -->
     <canvas id="particles"></canvas>
  
     <div class="card">
-        <div class="avatar tooltip" data-tooltip="点击查看证书"></div>
-        
-        <!-- 新增导航选项卡 -->
-        <nav class="tabs">
-            <button class="active" data-target="about">关于我</button>
-            <button data-target="skills">技能树</button>
-            <button data-target="projects">项目集</button>
-        </nav>
- 
-        <!-- 动态内容区 -->
-        <div id="about" class="tab-content active">
-            <h2>👋 自我介绍</h2>
-            <p>初中一年级蒟蒻...</p>
+        <div class="avatar-container">
+            <div class="avatar"></div>
         </div>
         
-        <div id="skills" class="tab-content">
-            <div class="skill-bar">
-                <div class="skill-progress" data-level="90"></div>
+        <h1 style="text-align: center; color: var(--primary);">李小明</h1>
+        
+        <div class="section">
+            <h2>📚 核心技能</h2>
+            <div class="skill">
+                <label>HTML5/CSS3</label>
+                <div class="skill-bar">
+                    <div class="skill-progress" data-width="90%"></div>
+                </div>
             </div>
+            <!-- 更多技能条 -->
         </div>
+ 
+        <div class="section timeline">
+            <h2>🚀 项目经历</h2>
+            <div class="event">
+                <h3>2023 - AI简历解析系统</h3>
+                <p>集成NLP技术的智能分析平台...</p>
+            </div>
+            <!-- 更多经历 -->
+        </div>
+ 
+        <button id="voiceBtn" style="margin-top: 20px;">🎤 语音介绍</button>
     </div>
  
     <script>
-        // 新增粒子系统 [3]()
+        // 粒子背景初始化 [7]()
         const canvas = document.getElementById('particles'); 
         const ctx = canvas.getContext('2d'); 
-        let particles = [];
+        canvas.width  = window.innerWidth; 
+        canvas.height  = window.innerHeight; 
+        
+        // 粒子动画逻辑...
  
-        class Particle {
-            constructor() {
-                this.reset(); 
-            }
-            reset() {
-                this.x = Math.random()  * canvas.width; 
-                this.y = Math.random()  * canvas.height; 
-                this.vx  = (Math.random()  - 0.5) * 0.5;
-                this.vy  = (Math.random()  - 0.5) * 0.5;
-                this.radius  = Math.random()  * 2;
-            }
-            update() {
-                this.x += this.vx; 
-                this.y += this.vy; 
-                if (++this.life  > 300) this.reset(); 
-            }
-            draw() {
-                ctx.beginPath(); 
-                ctx.arc(this.x,  this.y, this.radius,  0, Math.PI*2);
-                ctx.fillStyle  = 'rgba(255,255,255,0.8)';
-                ctx.fill(); 
-            }
-        }
- 
-        // 初始化粒子 
-        function initParticles() {
-            canvas.width  = window.innerWidth; 
-            canvas.height  = window.innerHeight; 
-            particles = Array(100).fill().map(() => new Particle());
-            animate();
-        }
- 
-        // 新增视差滚动检测 
-        const observer = new IntersectionObserver(entries => {
-            entries.forEach(entry  => {
-                if(entry.isIntersecting)  {
-                    entry.target.classList.add('active'); 
-                    if(entry.target.classList.contains('skill-progress'))  {
-                        entry.target.style.width  = entry.target.dataset.level  + '%';
-                    }
+        // 滚动触发动画 
+        window.addEventListener('scroll',  () => {
+            document.querySelectorAll('.card').forEach(card  => {
+                const rect = card.getBoundingClientRect(); 
+                if(rect.top  < window.innerHeight  * 0.8) {
+                    card.classList.add('active'); 
                 }
             });
-        }, { threshold: 0.5 });
+        });
  
-        // 初始化交互 
-        document.addEventListener('DOMContentLoaded',  () => {
-            initParticles();
-            document.querySelectorAll('.timeline-item,  .skill-progress').forEach(el => observer.observe(el)); 
-            
-            // 选项卡切换 
-            document.querySelectorAll('.tabs  button').forEach(btn => {
-                btn.addEventListener('click',  () => {
-                    document.querySelectorAll('.tab-content').forEach(c  => c.classList.remove('active')); 
-                    document.getElementById(btn.dataset.target).classList.add('active'); 
-                    btn.classList.add('active'); 
-                });
-            });
+        // 语音播报功能 
+        const synth = window.speechSynthesis; 
+        document.getElementById('voiceBtn').addEventListener('click',  () => {
+            const msg = new SpeechSynthesisUtterance(document.body.textContent); 
+            msg.lang  = 'zh-CN';
+            synth.speak(msg); 
+        });
  
-            // 头像点击事件 
-            document.querySelector('.avatar').addEventListener('click',  () => {
-                const modal = document.createElement('div'); 
-                modal.innerHTML  = `<div class="certificate-modal">...</div>`;
-                document.body.appendChild(modal); 
+        // 技能条延迟加载 
+        window.addEventListener('load',  () => {
+            document.querySelectorAll('.skill-progress').forEach(progress  => {
+                const width = progress.dataset.width; 
+                progress.style.width  = width;
             });
         });
     </script>
