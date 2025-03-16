@@ -9,21 +9,62 @@
             --accent: #ff6b6b;
             --bg: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         }
- 
-        /* 粒子背景 [7]() */
+
+        /* 粒子背景 */
         #particles {
             position: fixed;
             width: 100%;
             height: 100%;
             z-index: -1;
         }
- 
+
         body {
             font-family: 'Segoe UI', system-ui;
             margin: 0;
             background: var(--bg);
+            opacity: 0;
+            animation: fadeIn 0.8s ease-in forwards;
+            transition: background 0.5s ease;
         }
- 
+
+        body.night-mode {
+            --primary: #ffffff;
+            --accent: #ff6b6b;
+            --bg: linear-gradient(135deg, #1e1e2f 0%, #2c2c4f 100%);
+            color: #ffffff;
+        }
+
+        .night-mode .card {
+            background: rgba(0, 0, 0, 0.8);
+            color: #ffffff;
+        }
+
+        .night-mode .avatar {
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTU0') center/cover;
+        }
+
+        .night-mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: var(--bg);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s ease;
+        }
+
+        .night-mode-toggle:hover {
+            background: var(--accent);
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
         /* 动态卡片容器 */
         .card {
             background: rgba(255,255,255,0.95);
@@ -36,18 +77,18 @@
             opacity: 0;
             transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
         }
- 
-        .card.active  {
+
+        .card.active {
             opacity: 1;
             transform: translateY(0);
         }
- 
+
         /* 3D头像效果 */
         .avatar-container {
             perspective: 1000px;
             margin: -100px auto 30px;
         }
- 
+
         .avatar {
             width: 150px;
             height: 150px;
@@ -57,11 +98,11 @@
             transition: transform 0.8s;
             box-shadow: 0 0 30px rgba(0,0,0,0.1);
         }
- 
+
         .avatar:hover {
             transform: rotateY(180deg);
         }
- 
+
         /* 动态进度条 */
         .skill-bar {
             height: 12px;
@@ -70,23 +111,15 @@
             overflow: hidden;
             position: relative;
         }
- 
+
         .skill-progress {
             height: 100%;
             width: 0;
             background: linear-gradient(90deg, var(--accent), #ff8e53);
-            transition: width 1s 0.3s, opacity 0.5s;
+            transition: width 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.8s;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
         }
- 
-        /* 时间轴动画 */
-        .timeline::before {
-            animation: lineGrow 1.2s 0.5s forwards;
-        }
- 
-        @keyframes lineGrow {
-            to { transform: scaleY(1); }
-        }
- 
+
         /* 响应式设计 */
         @media (max-width: 768px) {
             .card { margin: 1rem; padding: 1.5rem; }
@@ -95,8 +128,9 @@
     </style>
 </head>
 <body>
+    <button class="night-mode-toggle" onclick="toggleNightMode()">🌙 夜间模式</button>
     <canvas id="particles"></canvas>
- 
+
     <div class="card">
         <div class="avatar-container">
             <div class="avatar"></div>
@@ -112,53 +146,64 @@
                     <div class="skill-progress" data-width="90%"></div>
                 </div>
             </div>
-            <!-- 更多技能条 -->
         </div>
- 
+
         <div class="section timeline">
             <h2>🚀 项目经历</h2>
             <div class="event">
                 <h3>2023 - AI简历解析系统</h3>
                 <p>集成NLP技术的智能分析平台...</p>
             </div>
-            <!-- 更多经历 -->
         </div>
- 
+
         <button id="voiceBtn" style="margin-top: 20px;">🎤 语音介绍</button>
     </div>
- 
+
+    <div class="page-loaded">页面加载完成！</div>
+
     <script>
-        // 粒子背景初始化 [7]()
-        const canvas = document.getElementById('particles'); 
-        const ctx = canvas.getContext('2d'); 
-        canvas.width  = window.innerWidth; 
-        canvas.height  = window.innerHeight; 
-        
-        // 粒子动画逻辑...
- 
-        // 滚动触发动画 
-        window.addEventListener('scroll',  () => {
-            document.querySelectorAll('.card').forEach(card  => {
-                const rect = card.getBoundingClientRect(); 
-                if(rect.top  < window.innerHeight  * 0.8) {
-                    card.classList.add('active'); 
+        // 页面加载进度条
+        const loadingBar = document.querySelector('.loading-bar');
+        window.addEventListener('load', () => {
+            loadingBar.style.width = '100%';
+            setTimeout(() => {
+                loadingBar.style.opacity = '0';
+            }, 500);
+        });
+
+        // 页面加载完成提示
+        const pageLoaded = document.querySelector('.page-loaded');
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                pageLoaded.classList.add('show');
+                setTimeout(() => {
+                    pageLoaded.classList.remove('show');
+                }, 3000);
+            }, 500);
+        });
+
+        // 夜间模式切换功能
+        function toggleNightMode() {
+            document.body.classList.toggle('night-mode');
+            const button = document.querySelector('.night-mode-toggle');
+            button.textContent = document.body.classList.contains('night-mode') ? '☀️ 日间模式' : '🌙 夜间模式';
+        }
+
+        // 卡片入场动画
+        window.addEventListener('scroll', () => {
+            document.querySelectorAll('.card').forEach(card => {
+                const rect = card.getBoundingClientRect();
+                if (rect.top < window.innerHeight * 0.8) {
+                    card.classList.add('active');
                 }
             });
         });
- 
-        // 语音播报功能 
-        const synth = window.speechSynthesis; 
-        document.getElementById('voiceBtn').addEventListener('click',  () => {
-            const msg = new SpeechSynthesisUtterance(document.body.textContent); 
-            msg.lang  = 'zh-CN';
-            synth.speak(msg); 
-        });
- 
-        // 技能条延迟加载 
-        window.addEventListener('load',  () => {
-            document.querySelectorAll('.skill-progress').forEach(progress  => {
-                const width = progress.dataset.width; 
-                progress.style.width  = width;
+
+        // 技能条动画
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.skill-progress').forEach(progress => {
+                const width = progress.dataset.width;
+                progress.style.width = width;
             });
         });
     </script>
