@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>动态自我介绍</title>
+    <style>
+        /* 全局动态效果 [1]() */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem;
+        }
+
+        /* 动态卡片容器 [4]() */
+        .card {
+            background: rgba(255,255,255,0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 800px;
+            transform: perspective(1000px) rotateY(0deg);
+            transition: transform 0.5s, box-shadow 0.3s;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .card:hover {
+            transform: perspective(1000px) rotateY(5deg);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        /* 动态头像 [8]() */
+        .avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            margin: -80px auto 20px;
+            transition: transform 0.3s;
+            background: url('https://via.placeholder.com/150')  center/cover;
+        }
+
+        .avatar:hover {
+            transform: rotate(360deg) scale(1.1);
+        }
+
+        /* 技能进度条动画 [1]() */
+        .skill-bar {
+            background: #eee;
+            height: 25px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .skill-progress {
+            background: linear-gradient(90deg, #ff6b6b, #ff8e53);
+            height: 100%;
+            width: 0;
+            transition: width 1s ease-in-out;
+            border-radius: 12px;
+        }
+
+        /* 时间轴动态效果 [4]() */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background: #ddd;
+            transform: scaleY(0);
+            transform-origin: top;
+            animation: lineGrow 1.5s forwards;
+        }
+
+        @keyframes lineGrow {
+            to { transform: scaleY(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="avatar"></div>
+        <h1 style="text-align: center; color: #2c3e50;">李小明</h1>
+        
+        <div class="section">
+            <h2>📚 专业技能</h2>
+            <div class="skill">
+                <label>HTML/CSS</label>
+                <div class="skill-bar">
+                    <div class="skill-progress" style="width: 90%"></div>
+                </div>
+            </div>
+            <!-- 更多技能条... -->
+        </div>
+
+        <div class="section timeline">
+            <h2>🚀 项目经历</h2>
+            <div class="event">
+                <h3>2023 - 智能简历解析系统</h3>
+                <p>使用NLP技术实现简历智能解析...</p>
+            </div>
+            <!-- 更多时间轴条目... -->
+        </div>
+    </div>
+
+    <script>
+        // 滚动触发动画 [1]()
+        window.addEventListener('scroll',  () => {
+            document.querySelectorAll('.card').forEach(card  => {
+                const cardTop = card.getBoundingClientRect().top; 
+                if(cardTop < window.innerHeight  * 0.8) {
+                    card.style.opacity  = 1;
+                }
+            });
+        });
+
+        // 技能条加载动画 [4]()
+        window.onload  = () => {
+            document.querySelectorAll('.skill-progress').forEach(progress  => {
+                const targetWidth = progress.style.width; 
+                progress.style.width  = '0';
+                setTimeout(() => progress.style.width  = targetWidth, 500);
+            });
+        };
+    </script>
+</body>
+</html>
