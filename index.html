@@ -1,211 +1,312 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <title>动态自我介绍 - 增强版</title>
-    <style>
-        :root {
-            --primary: #2c3e50;
-            --accent: #ff6b6b;
-            --bg: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        }
-
-        /* 粒子背景 */
-        #particles {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-
+&lt;!DOCTYPE html&gt;
+&lt;html lang="zh-CN"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;个人简历&lt;/title&gt;
+    &lt;style&gt;
         body {
-            font-family: 'Segoe UI', system-ui;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
             margin: 0;
-            background: var(--bg);
-            opacity: 0;
-            animation: fadeIn 0.8s ease-in forwards;
-            transition: background 0.5s ease;
+            padding: 0;
+            background: linear-gradient(135deg, #f4f4f4, #e0e0e0);
+            color: #333;
+            animation: fadeIn 1s ease-in-out;
         }
-
-        body.night-mode {
-            --primary: #ffffff;
-            --accent: #ff6b6b;
-            --bg: linear-gradient(135deg, #1e1e2f 0%, #2c2c4f 100%);
-            color: #ffffff;
-        }
-
-        .night-mode .card {
-            background: rgba(0, 0, 0, 0.8);
-            color: #ffffff;
-        }
-
-        .night-mode .avatar {
-            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTU0') center/cover;
-        }
-
-        .night-mode-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--primary);
-            color: var(--bg);
-            border: none;
-            padding: 10px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            transition: background 0.3s ease;
-        }
-
-        .night-mode-toggle:hover {
-            background: var(--accent);
-        }
-
         @keyframes fadeIn {
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
-
-        /* 动态卡片容器 */
-        .card {
-            background: rgba(255,255,255,0.95);
-            border-radius: 20px;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-            padding: 2.5rem;
-            margin: 2rem auto;
-            max-width: 800px;
-            transform: translateY(20px);
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+        h1, h2, h3 {
+            color: #333;
+            transition: color 0.3s ease;
+        }
+        h1:hover, h2:hover, h3:hover {
+            color: #007BFF;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            animation: slideIn 1s ease-in-out;
+        }
+        h2 {
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+            margin-top: 30px;
+            animation: slideIn 1s ease-in-out;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .section {
+            margin-bottom: 30px;
             opacity: 0;
-            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            animation: fadeInUp 1s ease-in-out forwards;
         }
-
-        .card.active {
-            opacity: 1;
-            transform: translateY(0);
+        .section:nth-child(1) {
+            animation-delay: 0.2s;
         }
-
-        /* 3D头像效果 */
-        .avatar-container {
-            perspective: 1000px;
-            margin: -100px auto 30px;
+        .section:nth-child(2) {
+            animation-delay: 0.4s;
         }
-
-        .avatar {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZmY2YjZiIi8+PC9zdmc+') center/cover;
-            transform: rotateY(0deg);
-            transition: transform 0.8s;
-            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+        .section:nth-child(3) {
+            animation-delay: 0.6s;
         }
-
-        .avatar:hover {
-            transform: rotateY(180deg);
+        .section:nth-child(4) {
+            animation-delay: 0.8s;
         }
-
-        /* 动态进度条 */
-        .skill-bar {
-            height: 12px;
-            background: rgba(0,0,0,0.1);
-            border-radius: 6px;
-            overflow: hidden;
-            position: relative;
+        .section:nth-child(5) {
+            animation-delay: 1s;
         }
-
-        .skill-progress {
-            height: 100%;
-            width: 0;
-            background: linear-gradient(90deg, var(--accent), #ff8e53);
-            transition: width 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.8s;
-            box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+        .section:nth-child(6) {
+            animation-delay: 1.2s;
         }
-
-        /* 响应式设计 */
-        @media (max-width: 768px) {
-            .card { margin: 1rem; padding: 1.5rem; }
-            .avatar { width: 120px; height: 120px; }
+        @keyframes fadeInUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
-    </style>
-</head>
-<body>
-    <button class="night-mode-toggle" onclick="toggleNightMode()">🌙 夜间模式</button>
-    <canvas id="particles"></canvas>
+        .section p {
+            margin: 10px 0;
+            transition: color 0.3s ease;
+        }
+        .section p:hover {
+            color: #007BFF;
+        }
+        .section ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+        .section ul li {
+            margin-bottom: 10px;
+            transition: transform 0.3s ease;
+        }
+        .section ul li:hover {
+            transform: translateX(10px);
+        }
+        .contact-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .contact-info p {
+            margin: 5px 0;
+        }
+        .skills ul {
+            columns: 2;
+            -webkit-columns: 2;
+            -moz-columns: 2;
+        }
+        .experience .job {
+            margin-bottom: 20px;
+        }
+        .experience .job h3 {
+            margin-bottom: 10px;
+        }
+        .experience .job p {
+            margin: 5px 0;
+        }
+        .education .degree {
+            margin-bottom: 20px;
+        }
+        .education .degree h3 {
+            margin-bottom: 10px;
+        }
+        .education .degree p {
+            margin: 5px 0;
+        }
+        .projects .project {
+            margin-bottom: 20px;
+        }
+        .projects .project h3 {
+            margin-bottom: 10px;
+        }
+        .projects .project p {
+            margin: 5px 0;
+        }
+        .certifications ul {
+            columns: 2;
+            -webkit-columns: 2;
+            -moz-columns: 2;
+        }
+        .awards ul {
+            columns: 2;
+            -webkit-columns: 2;
+            -moz-columns: 2;
+        }
+    &lt;/style&gt;
+    &lt;script&gt;
+        document.addEventListener('DOMContentLoaded', function() {
+            // 视差效果
+            window.addEventListener('scroll', function() {
+                const yOffset = window.pageYOffset;
+                const container = document.querySelector('.container');
+                container.style.transform = `translateY(${yOffset * 0.1}px)`;
+            });
 
-    <div class="card">
-        <div class="avatar-container">
-            <div class="avatar"></div>
-        </div>
-        
-        <h1 style="text-align: center; color: var(--primary);">李小明</h1>
-        
-        <div class="section">
-            <h2>📚 核心技能</h2>
-            <div class="skill">
-                <label>HTML5/CSS3</label>
-                <div class="skill-bar">
-                    <div class="skill-progress" data-width="90%"></div>
-                </div>
-            </div>
-        </div>
+            // 标题点击展开/折叠效果
+            const headers = document.querySelectorAll('h2');
+            headers.forEach(header => {
+                header.addEventListener('click', function() {
+                    const section = this.nextElementSibling;
+                    section.style.display = section.style.display === 'none' ? 'block' : 'none';
+                });
+            });
 
-        <div class="section timeline">
-            <h2>🚀 项目经历</h2>
-            <div class="event">
-                <h3>2023 - AI简历解析系统</h3>
-                <p>集成NLP技术的智能分析平台...</p>
-            </div>
-        </div>
-
-        <button id="voiceBtn" style="margin-top: 20px;">🎤 语音介绍</button>
-    </div>
-
-    <div class="page-loaded">页面加载完成！</div>
-
-    <script>
-        // 页面加载进度条
-        const loadingBar = document.querySelector('.loading-bar');
-        window.addEventListener('load', () => {
-            loadingBar.style.width = '100%';
-            setTimeout(() => {
-                loadingBar.style.opacity = '0';
-            }, 500);
-        });
-
-        // 页面加载完成提示
-        const pageLoaded = document.querySelector('.page-loaded');
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                pageLoaded.classList.add('show');
+            // 动态加载内容动画
+            const sections = document.querySelectorAll('.section');
+            sections.forEach((section, index) => {
                 setTimeout(() => {
-                    pageLoaded.classList.remove('show');
-                }, 3000);
-            }, 500);
-        });
-
-        // 夜间模式切换功能
-        function toggleNightMode() {
-            document.body.classList.toggle('night-mode');
-            const button = document.querySelector('.night-mode-toggle');
-            button.textContent = document.body.classList.contains('night-mode') ? '☀️ 日间模式' : '🌙 夜间模式';
-        }
-
-        // 卡片入场动画
-        window.addEventListener('scroll', () => {
-            document.querySelectorAll('.card').forEach(card => {
-                const rect = card.getBoundingClientRect();
-                if (rect.top < window.innerHeight * 0.8) {
-                    card.classList.add('active');
-                }
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }, index * 200);
             });
         });
+    &lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="container"&gt;
+        &lt;h1&gt;个人简历&lt;/h1&gt;
+        &lt;div class="contact-info"&gt;
+            &lt;p&gt;姓名：张三&lt;/p&gt;
+            &lt;p&gt;电话：123-456-7890&lt;/p&gt;
+            &lt;p&gt;邮箱：zhangsan@example.com&lt;/p&gt;
+            &lt;p&gt;地址：北京市朝阳区&lt;/p&gt;
+        &lt;/div&gt;
 
-        // 技能条动画
-        window.addEventListener('load', () => {
-            document.querySelectorAll('.skill-progress').forEach(progress => {
-                const width = progress.dataset.width;
-                progress.style.width = width;
-            });
-        });
-    </script>
-</body>
-</html>
+        &lt;div class="section"&gt;
+            &lt;h2&gt;个人信息&lt;/h2&gt;
+            &lt;p&gt;性别：男&lt;/p&gt;
+            &lt;p&gt;出生日期：1990年1月1日&lt;/p&gt;
+            &lt;p&gt;婚姻状况：未婚&lt;/p&gt;
+            &lt;p&gt;国籍：中国&lt;/p&gt;
+        &lt;/div&gt;
+
+        &lt;div class="section"&gt;
+            &lt;h2&gt;教育背景&lt;/h2&gt;
+            &lt;div class="education"&gt;
+                &lt;div class="degree"&gt;
+                    &lt;h3&gt;北京大学&lt;/h3&gt;
+                    &lt;p&gt;计算机科学与技术&lt;/p&gt;
+                    &lt;p&gt;学士学位&lt;/p&gt;
+                    &lt;p&gt;2010年9月 - 2014年6月&lt;/p&gt;
+                &lt;/div&gt;
+                &lt;div class="degree"&gt;
+                    &lt;h3&gt;清华大学&lt;/h3&gt;
+                    &lt;p&gt;软件工程&lt;/p&gt;
+                    &lt;p&gt;硕士学位&lt;/p&gt;
+                    &lt;p&gt;2014年9月 - 2016年6月&lt;/p&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class="section"&gt;
+            &lt;h2&gt;工作经验&lt;/h2&gt;
+            &lt;div class="experience"&gt;
+                &lt;div class="job"&gt;
+                    &lt;h3&gt;高级软件工程师&lt;/h3&gt;
+                    &lt;p&gt;腾讯科技有限公司&lt;/p&gt;
+                    &lt;p&gt;2016年7月 - 至今&lt;/p&gt;
+                    &lt;p&gt;负责公司核心产品的开发与维护，带领团队完成多个重要项目。&lt;/p&gt;
+                    &lt;ul&gt;
+                        &lt;li&gt;参与设计并实现了公司核心产品的架构&lt;/li&gt;
+                        &lt;li&gt;优化了系统性能，提高了产品的响应速度&lt;/li&gt;
+                        &lt;li&gt;带领团队完成了多个重要项目，获得了公司的高度评价&lt;/li&gt;
+                    &lt;/ul&gt;
+                &lt;/div&gt;
+                &lt;div class="job"&gt;
+                    &lt;h3&gt;软件工程师&lt;/h3&gt;
+                    &lt;p&gt;百度在线网络技术有限公司&lt;/p&gt;
+                    &lt;p&gt;2014年7月 - 2016年6月&lt;/p&gt;
+                    &lt;p&gt;参与公司多个项目的开发与维护，积累了丰富的项目经验。&lt;/p&gt;
+                    &lt;ul&gt;
+                        &lt;li&gt;参与了公司核心产品的开发&lt;/li&gt;
+                        &lt;li&gt;负责了多个模块的设计与实现&lt;/li&gt;
+                        &lt;li&gt;优化了代码结构，提高了代码的可维护性&lt;/li&gt;
+                    &lt;/ul&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class="section"&gt;
+            &lt;h2&gt;技能&lt;/h2&gt;
+            &lt;div class="skills"&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;熟练掌握Java、Python、C++等编程语言&lt;/li&gt;
+                    &lt;li&gt;熟悉Spring、Django等主流框架&lt;/li&gt;
+                    &lt;li&gt;熟悉MySQL、MongoDB等数据库&lt;/li&gt;
+                    &lt;li&gt;熟悉Linux操作系统，掌握常用命令&lt;/li&gt;
+                    &lt;li&gt;熟悉Git版本控制工具&lt;/li&gt;
+                    &lt;li&gt;具备良好的代码规范和文档编写能力&lt;/li&gt;
+                    &lt;li&gt;具备良好的团队协作和沟通能力&lt;/li&gt;
+                    &lt;li&gt;具备较强的学习能力和问题解决能力&lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class="section"&gt;
+            &lt;h2&gt;项目经历&lt;/h2&gt;
+            &lt;div class="projects"&gt;
+                &lt;div class="project"&gt;
+                    &lt;h3&gt;腾讯云平台开发&lt;/h3&gt;
+                    &lt;p&gt;项目描述：负责腾讯云平台的核心模块开发与优化。&lt;/p&gt;
+                    &lt;p&gt;项目职责：负责核心模块的设计与实现，优化系统性能。&lt;/p&gt;
+                    &lt;p&gt;项目成果：成功上线并获得了用户的高度评价。&lt;/p&gt;
+                &lt;/div&gt;
+                &lt;div class="project"&gt;
+                    &lt;h3&gt;百度搜索引擎优化&lt;/h3&gt;
+                    &lt;p&gt;项目描述：参与百度搜索引擎的优化工作。&lt;/p&gt;
+                    &lt;p&gt;项目职责：负责搜索算法的优化与实现。&lt;/p&gt;
+                    &lt;p&gt;项目成果：提高了搜索的准确性和响应速度。&lt;/p&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class="section"&gt;
+            &lt;h2&gt;证书和奖项&lt;/h2&gt;
+            &lt;div class="certifications"&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;Oracle Certified Professional, Java SE 8 Programmer&lt;/li&gt;
+                    &lt;li&gt;Microsoft Certified: Azure Developer Associate&lt;/li&gt;
+                    &lt;li&gt;AWS Certified Solutions Architect - Associate&lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/div&gt;
+            &lt;div class="awards"&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;腾讯公司年度优秀员工&lt;/li&gt;
+                    &lt;li&gt;百度公司技术创新奖&lt;/li&gt;
+                    &lt;li&gt;北京大学优秀毕业生&lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
