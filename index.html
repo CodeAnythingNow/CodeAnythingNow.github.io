@@ -1,331 +1,817 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人简历</title>
+    <title>音量调节游戏 - 10关挑战</title>
     <style>
         /* 全局样式 */
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            line-height: 1.8;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
 
-        .container {
-            max-width: 1200px;
-            padding: 2rem;
-            margin: 2rem auto;
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.1);
-            border-radius: 1.5rem;
+        #game-container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 85%;
+            max-width: 650px;
+            text-align: center;
+            transition: all 0.3s ease;
         }
 
-        /* 通用卡片样式 */
-        .card {
+        #game-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 关卡选择界面 */
+        #level-selector {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .level-btn {
+            width: 50px;
+            height: 50px;
+            margin: 5px;
+            border-radius: 50%;
+            font-weight: bold;
+            transition: all 0.2s;
+            background-color: #e0e0e0;
+            border: none;
+            cursor: pointer;
+        }
+
+        .level-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* 得分系统样式 */
+        #score-display {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin: 15px 0;
+        }
+
+        /* 音量条样式 */
+        #volume-bar-container {
             position: relative;
-            padding: 2rem;
-            background: white;
-            border-radius: 1rem;
-            box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 0;
+            width: 100%;
+            height: 30px;
+            margin: 25px 0;
+            background-color: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
         }
 
-        .card:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 1rem 2rem rgba(0, 123, 255, 0.15);
+        #volume-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%);
+            width: 50%;
+            transition: width 0.3s ease-out;
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.3);
         }
 
-        /* 证书奖项模块 */
-        .certifications {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            padding: 2rem 0;
-        }
-
-        .cert-card {
-            border-left: 4px solid #28a745;
-            animation: slideInLeft 0.8s forwards;
-        }
-
-        .cert-card h3::before {
-            content: '📜';
-            margin-right: 0.8rem;
-        }
-
-        .award-card {
-            border-left: 4px solid #ffc107;
-            animation: slideInRight 0.8s forwards;
-        }
-
-        .award-card h3::before {
-            content: '🏅';
-            margin-right: 0.8rem;
-        }
-
-        /* 保留原有动态效果 */
-        .education .degree,
-        .experience .job {
+        /* 开关按钮样式 */
+        .switch {
             position: relative;
-            padding: 2rem;
-            background: white;
-            border-radius: 1rem;
-            box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
             opacity: 0;
-            animation: slideInLeft 0.8s forwards;
+            width: 0;
+            height: 0;
         }
 
-        .education .degree:hover,
-        .experience .job:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 1rem 2rem rgba(0, 123, 255, 0.15);
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
         }
 
-        .education .degree h3::before {
-            content: '🎓';
-            margin-right: 0.8rem;
+        .slider.round {
+            border-radius: 34px;
         }
 
-        .experience .job h3::before {
-            content: '💼';
-            margin-right: 0.8rem;
+        .slider.round:before {
+            border-radius: 50%;
         }
 
-        @keyframes slideInLeft {
-            from {
-                transform: translateX(-30px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
         }
 
-        @keyframes slideInRight {
-            from {
-                transform: translateX(30px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+        input:checked + .slider {
+            background-color: #4CAF50;
         }
 
-
-        @keyframes slideInLeft {
-            from {
-                transform: translateX(-30px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+        input:checked + .slider:before {
+            transform: translateX(26px);
         }
 
-        @keyframes slideInRight {
-            from {
-                transform: translateX(30px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+        /* 动画效果 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
-        /* 响应式优化 */
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-                margin: 1rem auto;
-            }
+        .pulse {
+            animation: pulse 1s infinite;
+        }
 
-            .personal-info {
-                flex-direction: column;
-                align-items: center;
-            }
+        /* 通用样式 */
+        .current-volume {
+            margin: 10px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
 
-            .avatar img {
-                width: 100px;
-                height: 100px;
-                object-fit: cover;
-                border-radius: 50%;
-                border: 2px solid #007BFF;
-                margin-bottom: 1rem;
-            }
+        #level-container {
+            margin: 20px 0;
+        }
 
-            .certifications {
-                grid-template-columns: 1fr;
-            }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin: 5px;
+            transition: background-color 0.3s;
+        }
 
-            .education .degree,
-            .experience .job {
-                padding: 1rem;
-            }
+        button:hover {
+            background-color: #0056b3;
+        }
 
-            .cert-card,
-            .award-card {
-                padding: 1rem;
-            }
+        input {
+            padding: 8px;
+            margin: 5px;
+            width: 80%;
+            max-width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        #level-progress {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
         }
     </style>
+</head>
+<body>
+        <div id="game-container">
+            <div class="settings">
+                <label class="switch">
+                    <input type="checkbox" id="sound-toggle" checked>
+                    <span class="slider round"></span>
+                    <span style="margin-left: 10px;">音效反馈</span>
+                </label>
+                <button id="level-select-btn" style="margin-left: 20px;">选择关卡</button>
+            </div>
+            
+            <h1 style="color: #2c3e50;">音量调节大师</h1>
+            
+            <div id="score-display">
+                得分: <span id="score">0</span>
+            </div>
+            
+            <p id="level-title" style="font-size: 1.2em; color: #3498db;">第1关: 使用滑动条调节音量</p>
+            
+            <div id="volume-bar-container">
+                <div id="volume-bar"></div>
+            </div>
+            <p class="current-volume" style="font-size: 1.1em;">当前音量: <span id="volume-value">50</span>%</p>
+            
+            <div id="level-container">
+                <!-- 关卡内容动态加载 -->
+                <input type="range" min="0" max="100" step="1" value="50" id="volume-control" class="slider">
+                <button id="submit-btn" class="pulse">提交</button>
+            </div>
+            
+            <div id="level-selector">
+                <h3>选择关卡</h3>
+                <div id="level-buttons"></div>
+                <button id="close-level-select" style="margin-top: 15px;">返回游戏</button>
+            </div>
+            
+            <div id="level-progress" style="margin-top: 25px;">
+                <progress value="1" max="15"></progress>
+                <span>关卡进度: 1/15</span>
+            </div>
+        </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // 初始化所有动态元素（包含新增证书卡片）
-            const dynamicElements = document.querySelectorAll('.degree, .job, .cert-card, .award-card');
-            dynamicElements.forEach((el, index) => {
-                el.style.animationDelay = `${index * 0.2}s`;
-            });
+        // 音效系统
+        const audioSystem = {
+            audioElement: null,
+            enabled: true,
+            status: '等待初始化',
+            lastVolume: 50,
+            
+            init: function() {
+                try {
+                    // 创建音频元素并加载音效文件
+                    this.audioElement = new Audio('sound1.mp3');
+                    this.status = '已初始化';
+                    console.log('音效系统已初始化');
+                    
+                    // 添加加载事件监听器
+                    this.audioElement.addEventListener('canplaythrough', () => {
+                        console.log('音效文件已加载完成');
+                        this.preload();
+                    });
+                    
+                    this.audioElement.addEventListener('error', (e) => {
+                        console.error('音效文件加载失败:', e);
+                        this.enabled = false;
+                        this.status = '加载失败';
+                    });
+                } catch(e) {
+                    console.error('音效初始化失败:', e);
+                    this.enabled = false;
+                    this.status = '初始化失败';
+                }
+                
+                // 立即尝试预加载
+                this.preload();
+            },
+            
+            updateVolume: function(volume) {
+                if (!this.audioElement || !this.enabled || !document.getElementById('sound-toggle').checked) {
+                    console.log('音效未启用或未初始化');
+                    return;
+                }
+                
+                const vol = parseInt(volume);
+                console.log(`音量变化检测: 当前${vol}%, 上次${this.lastVolume}%`);
+                
+                // 设置音量(0-1范围)
+                this.audioElement.volume = vol / 100;
+                
+                // 当音量变化时播放音效
+                if (vol !== this.lastVolume) {
+                    try {
+                        console.log('准备播放音效');
+                        this.audioElement.currentTime = 0; // 重置播放位置
+                        
+                        // 处理autoplay策略
+                        const playPromise = this.audioElement.play();
+                        
+                        if (playPromise !== undefined) {
+                            playPromise
+                                .then(() => console.log('音效播放成功'))
+                                .catch(e => {
+                                    console.error('播放音效失败:', e);
+                                    // 尝试在用户交互后恢复播放
+                                    document.addEventListener('click', () => {
+                                        this.audioElement.play()
+                                            .catch(e => console.error('恢复播放失败:', e));
+                                    }, { once: true });
+                                });
+                        }
+                    } catch(e) {
+                        console.error('播放音效异常:', e);
+                    }
+                    this.lastVolume = vol;
+                }
+            },
+            
+            playSuccess: function() {
+                if (!this.audioElement || !this.enabled || !document.getElementById('sound-toggle').checked) return;
+                
+                try {
+                    this.audioElement.currentTime = 0;
+                    this.audioElement.play();
+                } catch(e) {
+                    console.error('播放成功音效失败:', e);
+                }
+            },
+            
+            preload: function() {
+                if (this.audioElement) {
+                    this.audioElement.load();
+                }
+            }
+        };
 
-            // 保留原有交互功能
-            // 视差效果
-            window.addEventListener('scroll', function () {
-                const yOffset = window.pageYOffset;
-                document.querySelector('.container').style.transform =
-                    `translateY(${yOffset * 0.1}px)`;
-            });
+        // 游戏状态
+        const gameState = {
+            currentLevel: 1,
+            currentVolume: 50,
+            levels: [
+                {
+                    title: "第1关: 使用滑动条调节音量",
+                    html: `<input type="range" min="0" max="100" step="1" value="50" id="volume-control">
+                          <button id="submit-btn">提交</button>`,
+                    setup: function() {
+                        document.getElementById('volume-control').addEventListener('input', function() {
+                            updateVolume(this.value);
+                        });
+                    }
+                },
+                {
+                    title: "第2关: 二进制输入",
+                    html: `<p>输入二进制数(0-110010)来调节音量</p>
+                          <input type="text" id="binary-input" placeholder="输入二进制数">
+                          <button id="submit-btn">提交</button>`,
+                    setup: function() {
+                        document.getElementById('binary-input').addEventListener('input', function() {
+                            const binary = this.value;
+                            if (/^[01]+$/.test(binary)) {
+                                const decimal = parseInt(binary, 2);
+                                if (decimal <= 100) {
+                                    updateVolume(decimal);
+                                }
+                            }
+                        });
+                    }
+                },
+                {
+                    title: "第3关: 随机数生成",
+                    html: `<button id="generate-random">生成随机数</button>
+                          <p id="random-value"></p>
+                          <button id="submit-btn">提交</button>`,
+                    setup: function() {
+                        document.getElementById('generate-random').addEventListener('click', function() {
+                            const randomValue = Math.floor(Math.random() * 101);
+                            document.getElementById('random-value').textContent = `随机数: ${randomValue}`;
+                            updateVolume(randomValue);
+                        });
+                    }
+                },
+                {
+                    title: "第4关: 数学计算",
+                    html: `<p>解方程: x + 25 = 75</p>
+                          <input type="number" id="math-input" placeholder="输入x的值">
+                          <button id="submit-btn">提交</button>`,
+                    setup: function() {
+                        document.getElementById('math-input').addEventListener('input', function() {
+                            const x = parseInt(this.value);
+                            if (!isNaN(x)) {
+                                updateVolume(x);
+                            }
+                        });
+                    }
+                },
+                {
+                    title: "第5关: 颜色选择",
+                    html: `<p>选择颜色来调节音量(R分量)</p>
+                          <input type="color" id="color-picker" value="#000000">
+                          <button id="submit-btn">提交</button>`,
+                    setup: function() {
+                        document.getElementById('color-picker').addEventListener('input', function() {
+                            const color = this.value;
+                            const r = parseInt(color.substr(1, 2), 16);
+                            updateVolume(Math.floor(r / 2.55));
+                        });
+                    }
+                },
+                {
+                    title: "第6关: 方向键控制",
+                    html: `<p>使用键盘上下键调节音量</p>
+                          <button id="submit-btn">提交</button>`,
+                    setup: function() {
+                        document.addEventListener('keydown', function(e) {
+                            if (e.key === 'ArrowUp') {
+                                updateVolume(Math.min(gameState.currentVolume + 5, 100));
+                            } else if (e.key === 'ArrowDown') {
+                                updateVolume(Math.max(gameState.currentVolume - 5, 0));
+                            }
+                        });
+                    }
+                },
+                {
+                    title: "第7关: 鼠标位置",
+                    html: `<div id="mouse-area" style="height: 100px; background: #eee; margin: 10px 0;">
+                              <p>移动鼠标来调节音量</p>
+                          </div>
+                          <button id="submit-btn">提交</button>`,
+                    setup: function() {
+                        document.getElementById('mouse-area').addEventListener('mousemove', function(e) {
+                            const percent = Math.floor(e.offsetY / this.offsetHeight * 100);
+                            updateVolume(100 - percent);
+                        });
+                    }
+                },
+                {
+                    title: "第8关: 时间控制",
+                    html: `<p>当前时间秒数将影响音量</p>
+                          <button id="get-time">获取当前时间</button>
+                          <p id="time-display"></p>
+                          <button id="submit-btn">提交</button>`,
+                    setup: function() {
+                        document.getElementById('get-time').addEventListener('click', function() {
+                            const seconds = new Date().getSeconds();
+                            const volume = Math.floor(seconds / 60 * 100);
+                            document.getElementById('time-display').textContent = 
+                                `当前秒数: ${seconds}, 音量: ${volume}%`;
+                            updateVolume(volume);
+                        });
+                    }
+                },
+                {
+                    title: "第9关: 密码输入",
+                    html: `<p>输入密码"volume50"设置音量为50%</p>
+                          <input type="password" id="password-input" placeholder="输入密码">
+                          <button id="submit-btn">提交</button>`,
+                    setup: function() {
+                        document.getElementById('password-input').addEventListener('input', function() {
+                            if (this.value === "volume50") {
+                                updateVolume(50);
+                            }
+                        });
+                    }
+                },
+                {
+                    title: "第10关: 终极挑战",
+                    html: `<p>使用所有方法调节音量到50%</p>
+                          <input type="range" min="0" max="100" step="1" value="50" id="volume-control">
+                          <input type="text" id="binary-input" placeholder="或输入二进制数">
+                          <button id="generate-random">生成随机数</button>
+                          <button id="submit-btn">提交</button>`,
+                    setup: function() {
+                        document.getElementById('volume-control').addEventListener('input', function() {
+                            updateVolume(this.value);
+                        });
+                        document.getElementById('binary-input').addEventListener('input', function() {
+                            const binary = this.value;
+                            if (/^[01]+$/.test(binary)) {
+                                const decimal = parseInt(binary, 2);
+                                if (decimal <= 100) {
+                                    updateVolume(decimal);
+                                }
+                            }
+                        });
+                        document.getElementById('generate-random').addEventListener('click', function() {
+                            const randomValue = Math.floor(Math.random() * 101);
+                            updateVolume(randomValue);
+                        });
+                    }
+                },
+                {
+                    title: "第11关: 数字迷宫",
+                    html: `<p>通过数字键盘(1-9)调节音量</p>
+                          <div id="keyboard-instruction">使用键盘数字键1-9调节音量(1=10%, 9=90%)</div>
+                          <button id="submit-btn">提交</button>`,
+                    setup: function() {
+                        document.addEventListener('keydown', function(e) {
+                            const key = parseInt(e.key);
+                            if (key >= 1 && key <= 9) {
+                                const volume = key * 10;
+                                updateVolume(volume);
+                            }
+                        });
+                    }
+                },
+                {
+                    title: "第12关: 声音控制",
+                    html: `<p>对着麦克风说话来调节音量</p>
+                          <div id="volume-meter" style="height: 20px; background: #ddd; margin: 10px 0;"></div>
+                          <button id="submit-btn">提交</button>`,
+                    setup: function() {
+                        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                            navigator.mediaDevices.getUserMedia({ audio: true })
+                                .then(function(stream) {
+                                    const audioContext = new AudioContext();
+                                    const analyser = audioContext.createAnalyser();
+                                    const microphone = audioContext.createMediaStreamSource(stream);
+                                    microphone.connect(analyser);
+                                    analyser.fftSize = 32;
+                                    
+                                    const bufferLength = analyser.frequencyBinCount;
+                                    const dataArray = new Uint8Array(bufferLength);
+                                    
+                                    function update() {
+                                        analyser.getByteFrequencyData(dataArray);
+                                        let sum = 0;
+                                        for (let i = 0; i < bufferLength; i++) {
+                                            sum += dataArray[i];
+                                        }
+                                        const average = sum / bufferLength;
+                                        const volume = Math.min(100, Math.floor(average / 2.55));
+                                        document.getElementById('volume-meter').style.width = volume + '%';
+                                        updateVolume(volume);
+                                        requestAnimationFrame(update);
+                                    }
+                                    update();
+                                })
+                                .catch(function(err) {
+                                    document.getElementById('volume-meter').textContent = "麦克风访问失败: " + err.message;
+                                });
+                        } else {
+                            document.getElementById('volume-meter').textContent = "您的浏览器不支持麦克风访问";
+                        }
+                    }
+                },
+                {
+                    title: "第13关: 记忆游戏",
+                    html: `<p>记住并重复音量序列</p>
+                          <div id="sequence-display"></div>
+                          <button id="start-sequence">开始序列</button>
+                          <input type="range" min="0" max="100" step="1" value="50" id="volume-control" style="display:none;">
+                          <button id="submit-btn" style="display:none;">提交</button>`,
+                    setup: function() {
+                        const sequence = [];
+                        let currentStep = 0;
+                        
+                        document.getElementById('start-sequence').addEventListener('click', function() {
+                            sequence.length = 0;
+                            currentStep = 0;
+                            for (let i = 0; i < 3; i++) {
+                                sequence.push(Math.floor(Math.random() * 101));
+                            }
+                            
+                            document.getElementById('sequence-display').textContent = "观察序列: " + sequence.join(", ");
+                            document.getElementById('volume-control').style.display = 'none';
+                            document.getElementById('submit-btn').style.display = 'none';
+                            
+                            setTimeout(function() {
+                                document.getElementById('sequence-display').textContent = "请重复序列";
+                                document.getElementById('volume-control').style.display = 'block';
+                                document.getElementById('submit-btn').style.display = 'block';
+                            }, 3000);
+                        });
+                        
+                        document.getElementById('volume-control').addEventListener('input', function() {
+                            updateVolume(this.value);
+                        });
+                        
+                        document.getElementById('submit-btn').addEventListener('click', function() {
+                            if (currentStep < sequence.length) {
+                                if (Math.abs(gameState.currentVolume - sequence[currentStep]) <= 5) {
+                                    currentStep++;
+                                    if (currentStep === sequence.length) {
+                                        updateVolume(50);
+                                        document.getElementById('sequence-display').textContent = "成功! 音量已设为50%";
+                                    } else {
+                                        document.getElementById('sequence-display').textContent = `正确! 下一个目标: ${sequence[currentStep]}%`;
+                                    }
+                                } else {
+                                    document.getElementById('sequence-display').textContent = "错误! 请重试";
+                                }
+                            }
+                        });
+                    }
+                },
+                {
+                    title: "第14关: 图形匹配",
+                    html: `<p>调整音量使波形匹配目标</p>
+                          <canvas id="wave-canvas" width="300" height="150" style="border:1px solid #ddd;"></canvas>
+                          <input type="range" min="0" max="100" step="1" value="50" id="volume-control">
+                          <button id="submit-btn">提交</button>`,
+                    setup: function() {
+                        const canvas = document.getElementById('wave-canvas');
+                        const ctx = canvas.getContext('2d');
+                        const targetVolume = 50;
+                        let currentVolume = 50;
+                        
+                        function drawWave() {
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            
+                            // 绘制目标波形(绿色)
+                            ctx.strokeStyle = '#4CAF50';
+                            ctx.beginPath();
+                            for (let x = 0; x < canvas.width; x++) {
+                                const y = canvas.height/2 + Math.sin(x/20) * (targetVolume/100) * (canvas.height/2 - 10);
+                                if (x === 0) ctx.moveTo(x, y);
+                                else ctx.lineTo(x, y);
+                            }
+                            ctx.stroke();
+                            
+                            // 绘制当前波形(蓝色)
+                            ctx.strokeStyle = '#007BFF';
+                            ctx.beginPath();
+                            for (let x = 0; x < canvas.width; x++) {
+                                const y = canvas.height/2 + Math.sin(x/20) * (currentVolume/100) * (canvas.height/2 - 10);
+                                if (x === 0) ctx.moveTo(x, y);
+                                else ctx.lineTo(x, y);
+                            }
+                            ctx.stroke();
+                        }
+                        
+                        drawWave();
+                        
+                        document.getElementById('volume-control').addEventListener('input', function() {
+                            currentVolume = this.value;
+                            updateVolume(currentVolume);
+                            drawWave();
+                        });
+                    }
+                },
+                {
+                    title: "第15关: 终极挑战2.0",
+                    html: `<p>使用任意方法在10秒内将音量精确调到50%</p>
+                          <p id="time-left">剩余时间: 10秒</p>
+                          <input type="range" min="0" max="100" step="1" value="50" id="volume-control">
+                          <input type="text" id="binary-input" placeholder="或输入二进制数">
+                          <button id="generate-random">生成随机数</button>
+                          <button id="submit-btn">提交</button>`,
+                    setup: function() {
+                        let timeLeft = 10;
+                        const timer = setInterval(function() {
+                            timeLeft--;
+                            document.getElementById('time-left').textContent = `剩余时间: ${timeLeft}秒`;
+                            if (timeLeft <= 0) {
+                                clearInterval(timer);
+                                document.getElementById('volume-control').disabled = true;
+                                document.getElementById('binary-input').disabled = true;
+                                document.getElementById('generate-random').disabled = true;
+                                document.getElementById('submit-btn').disabled = true;
+                                alert('时间到!');
+                            }
+                        }, 1000);
+                        
+                        document.getElementById('volume-control').addEventListener('input', function() {
+                            updateVolume(this.value);
+                        });
+                        document.getElementById('binary-input').addEventListener('input', function() {
+                            const binary = this.value;
+                            if (/^[01]+$/.test(binary)) {
+                                const decimal = parseInt(binary, 2);
+                                if (decimal <= 100) {
+                                    updateVolume(decimal);
+                                }
+                            }
+                        });
+                        document.getElementById('generate-random').addEventListener('click', function() {
+                            const randomValue = Math.floor(Math.random() * 101);
+                            updateVolume(randomValue);
+                        });
+                    }
+                }
+            ]
+        };
 
-            // 标题折叠功能
-            document.querySelectorAll('h2').forEach(header => {
-                header.addEventListener('click', function () {
-                    const section = this.nextElementSibling;
-                    section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        // 初始化游戏
+        function initGame() {
+            loadLevel(gameState.currentLevel - 1);
+            
+            // 提交按钮事件
+            document.addEventListener('click', function(e) {
+                if (e.target.id === 'submit-btn') {
+                    checkAnswer();
+                }
+            });
+        }
+
+        // 加载关卡
+        function loadLevel(levelIndex) {
+            const level = gameState.levels[levelIndex];
+            document.getElementById('level-title').textContent = level.title;
+            document.getElementById('level-container').innerHTML = level.html;
+            document.getElementById('level-progress').textContent = `关卡进度: ${levelIndex + 1}/15`;
+            level.setup();
+        }
+
+        // 更新音量显示（直接DOM操作确保实时性）
+        function updateVolume(volume) {
+            const vol = parseInt(volume);
+            gameState.currentVolume = vol;
+            
+            // 直接更新DOM元素
+            document.getElementById('volume-bar').style.width = vol + '%';
+            document.getElementById('volume-value').textContent = vol; 
+            document.querySelector('.current-volume span').textContent = vol;
+            
+            // 更新音效系统
+            audioSystem.updateVolume(vol);
+            
+            console.log('音量更新至:', vol);
+        }
+
+
+        // 检查答案
+        function checkAnswer() {
+            if (gameState.currentVolume === 50) {
+                alert('恭喜！关卡通过！');
+                if (gameState.currentLevel < 15) {
+                    gameState.currentLevel++;
+                    loadLevel(gameState.currentLevel - 1);
+                } else {
+                    alert('恭喜你完成了所有关卡！');
+                }
+            } else {
+                alert('音量未调节到50%，请继续尝试。');
+            }
+        }
+
+        // 检查音效文件是否存在
+        function checkAudioFile() {
+            return new Promise((resolve) => {
+                const audio = new Audio('sound1.mp3');
+                audio.addEventListener('error', () => {
+                    console.error('音效文件sound1.mp3不存在或无法加载');
+                    resolve(false);
                 });
+                audio.addEventListener('canplaythrough', () => {
+                    console.log('音效文件sound1.mp3存在且可播放');
+                    resolve(true);
+                });
+                audio.load();
             });
+        }
 
-            // 内容加载动画
-            document.querySelectorAll('.section').forEach((section, index) => {
-                setTimeout(() => {
-                    section.style.opacity = '1';
-                    section.style.transform = 'translateY(0)';
-                }, index * 200);
+        // 得分系统
+        let totalScore = 0;
+        
+        // 更新得分显示
+        function updateScore(points) {
+            totalScore += points;
+            document.getElementById('score').textContent = totalScore;
+            
+            // 添加得分动画
+            const scoreDisplay = document.getElementById('score-display');
+            scoreDisplay.classList.add('pulse');
+            setTimeout(() => scoreDisplay.classList.remove('pulse'), 1000);
+        }
+        
+        // 关卡选择功能
+        document.getElementById('level-select-btn').addEventListener('click', function() {
+            document.getElementById('level-container').style.display = 'none';
+            document.getElementById('level-selector').style.display = 'block';
+            
+            // 生成关卡按钮
+            const levelButtons = document.getElementById('level-buttons');
+            levelButtons.innerHTML = '';
+            
+            gameState.levels.forEach((level, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'level-btn';
+                btn.textContent = index + 1;
+                btn.style.backgroundColor = index < gameState.currentLevel ? '#4CAF50' : '#e0e0e0';
+                btn.addEventListener('click', function() {
+                    gameState.currentLevel = index + 1;
+                    loadLevel(index);
+                    document.getElementById('level-selector').style.display = 'none';
+                    document.getElementById('level-container').style.display = 'block';
+                });
+                levelButtons.appendChild(btn);
             });
         });
+        
+        document.getElementById('close-level-select').addEventListener('click', function() {
+            document.getElementById('level-selector').style.display = 'none';
+            document.getElementById('level-container').style.display = 'block';
+        });
+        
+        // 修改检查答案函数，添加得分
+        function checkAnswer() {
+            if (gameState.currentVolume === 50) {
+                updateScore(100);
+                alert('恭喜！关卡通过！获得100分！');
+                if (gameState.currentLevel < 15) {
+                    gameState.currentLevel++;
+                    loadLevel(gameState.currentLevel - 1);
+                } else {
+                    alert(`恭喜你完成了所有关卡！最终得分: ${totalScore}`);
+                }
+            } else {
+                alert('音量未调节到50%，请继续尝试。');
+            }
+        }
+        
+        // 启动游戏
+        window.onload = async function() {
+            const audioFileExists = await checkAudioFile();
+            if (!audioFileExists) {
+                alert('警告: 音效文件加载失败，游戏将静音运行');
+            }
+            audioSystem.init();
+            initGame();
+        };
     </script>
-</head>
-
-<body>
-    <div class="container">
-        <h1>个人简历</h1>
-        <div class="personal-info">
-            <div class="avatar">
-                <img src="https://cdn.luogu.com.cn/upload/image_hosting/m8nvxl9s.png" alt="头像">
-            </div>
-            <div class="contact-info">
-                <p>姓名：CodeAnythingNow</p>
-                <p>电话：***-****-****</p>
-                <p>邮箱：*******@gmail.com</p>
-                <p>地址：北京市朝阳区</p>
-            </div>
-            <div class="basic-info">
-                <h2>个人信息</h2>
-                <p>性别：男</p>
-                <p>出生日期：1990年1月1日</p>
-                <p>婚姻状况：未婚</p>
-                <p>国籍：中国</p>
-            </div>
-        </div>
-        <div class="section">
-            <h2>教育背景</h2>
-            <div class="education">
-                <div class="degree">
-                    <h3>北京大学 | 计算机学院</h3>
-                    <p>计算机科学与技术专业（GPA 3.8/4.0）</p>
-                    <p>理学学士学位 | 2010.09 - 2014.06</p>
-                    <ul>
-                        <li>校级优秀毕业生（前5%）</li>
-                        <li>ACM国际大学生程序设计竞赛亚洲区银奖</li>
-                        <li>操作系统课程设计：实现类Linux进程调度模块</li>
-                    </ul>
-                </div>
-                <div class="degree">
-                    <h3>清华大学 | 软件学院</h3>
-                    <p>软件工程专业（研究方向：分布式系统）</p>
-                    <p>工学硕士学位 | 2014.09 - 2017.06</p>
-                    <ul>
-                        <li>硕士论文《基于Raft协议的分布式存储优化》获校级优秀论文</li>
-                        <li>参与国家863计划项目：云计算资源调度算法研究</li>
-                        <li>发明专利：一种分布式事务并发控制方法（ZL2016103589XX）</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>工作经验</h2>
-            <div class="experience">
-                <div class="job">
-                    <h3>腾讯科技 | 基础架构部</h3>
-                    <p>高级软件工程师 | 2016.07 - 至今</p>
-                    <div class="project-detail">
-                        <h4>微信支付风控系统架构优化（2018.03-2020.12）</h4>
-                        <ul>
-                            <li>基于Spring Cloud微服务架构重构核心交易链路，日均处理请求量从500万提升至3000万</li>
-                            <li>设计实现实时规则引擎，将风控策略生效时间从小时级缩短至秒级</li>
-                            <li>主导Redis集群架构优化，缓存命中率从78%提升至95%</li>
-                        </ul>
-                    </div>
-                    <div class="project-detail">
-                        <h4>腾讯云数据库TDSQL性能优化（2021.01-2023.06）</h4>
-                        <ul>
-                            <li>重构查询优化器模块，TPC-C基准测试性能提升40%</li>
-                            <li>实现智能索引推荐系统，DBA人工干预减少70%</li>
-                            <li>获2022年度腾讯技术突破奖</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="job">
-                    <h3>百度搜索 | 核心搜索部</h3>
-                    <p>软件工程师 | 2014.07 - 2016.06</p>
-                    <div class="project-detail">
-                        <h4>百度地图实时路况处理引擎升级（2015.01-2016.06）</h4>
-                        <ul>
-                            <li>基于Kafka+Flink重构实时数据处理管道，支持日均百亿级GPS数据处理</li>
-                            <li>优化路况计算算法，关键指标TP99延迟从3.2s降低至800ms</li>
-                            <li>实现多级缓存机制，服务器资源消耗降低40%</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 证书奖项模块 -->
-        <div class="section">
-            <h2>证书和奖项</h2>
-            <div class="certifications">
-                <div class="cert-card">
-                    <h3>专业认证</h3>
-                    <ul>
-                        <li>Oracle Certified Professional, Java SE 8 Programmer</li>
-                        <li>Microsoft Certified: Azure Developer Associate</li>
-                        <li>AWS Certified Solutions Architect - Associate</li>
-                    </ul>
-                </div>
-                <div class="award-card">
-                    <h3>荣誉奖项</h3>
-                    <ul>
-                        <li>腾讯公司年度优秀员工</li>
-                        <li>百度公司技术创新奖</li>
-                        <li>北京大学优秀毕业生</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div id="flyfish" class="fly-fish" height="200"></div>
-        <script src="https://assets.cdn1.vip/js/lanfish.js"></script>
-    </div>
 </body>
-
 </html>
